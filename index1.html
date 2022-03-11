@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Api calling with jQuery</title>
+       
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   </head>
+    <body>
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    ...
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">id</th>
+                <th scope="col">userName</th>
+                <th scope="col">password</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        <button class="btn btn-sm btn-success">Get users</button>
+
+
+        <script>
+              var myObj = {
+                    url: "https://fakerestapi.azurewebsites.net",
+                    type:"GET"
+                }
+              document.querySelector('button.btn.btn-sm.btn-success').addEventListener('click',function(){
+                //alert('okok');
+                $.ajax({
+                    ...myObj,
+                    url:myObj.url +"/api/v1/Users",//overwrite/modify/changes
+                    beforeSend:function(xhr){
+
+                    },
+                    success:function(result,status,xhr){
+                        console.log(result);
+                        var tr = ``;
+                        result.forEach(element => {
+                            console.log(element);
+                            tr = tr + `<tr>
+                                        <td>`+element.id+`</td>
+                                        <td>`+element.userName+`</td>
+                                        <td>`+element.password+`</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success s_viewbtn" data-bs-toggle="modal" data-bs-target="#exampleModal">View</button> 
+                                            <button class="btn btn-sm btn-info s_editbtn">Edit</button> 
+                                            <button class="btn btn-sm btn-danger s_delbtn">Delete</button> 
+                                        </td>    
+                                       </tr>`
+                        });
+                        console.log(tr);
+                        document.querySelector('table > tbody').innerHTML = tr;
+                    },
+                    error:function(xhr,status,error){
+
+                    },
+                    complete:function(xhr,status){
+                        
+                    }
+               });
+            });
+            document.addEventListener('click',function(e){
+                console.log(e);
+                if(e.target.classList.contains('s_delbtn')){
+                    //console.log('yes');
+                  
+                    //2. api calling
+                    let userid = e.target.closest('tr').querySelector('td:first-child').innerHTML;
+                      //1.remove the current row from the dom
+                      e.target.closest('tr').remove();//removed from the DOM
+                    $.ajax({
+                        ...myObj,
+                        url:myObj.url +"/api/v1/Users/"+userid,
+                        type:"DELETE", //completely change/overwrite
+                        beforeSend:function(xhr){},
+                        success:function(result,status,xhr){
+                            toastr.success('deleted successfully');
+                            //alert('deleted successfully')
+                        },
+                        error:function(xhr,status,error){
+
+                        },
+                        complete:function(xhr,status){
+
+                        }
+                    });
+                }else{
+                    console.log('no');
+                }
+            });
+        </script>
+    </body>
+</html>
